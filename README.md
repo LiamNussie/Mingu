@@ -33,7 +33,6 @@ A modern React Native dating application built with Expo, featuring swipe-based 
 - **Modern Design**: Clean, intuitive interface with gradient elements
 - **Tab Navigation**: Bottom tab navigation with custom icons
 - **Responsive Layout**: Optimized for different screen sizes
-- **Dark/Light Theme Support**: Consistent color scheme throughout
 - **Gesture Support**: Smooth swipe gestures and touch interactions
 
 ### Profile Management
