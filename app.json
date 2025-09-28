@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/Mingu.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
     "splash": {
       "image": "./assets/Mingu-white.png",
       "resizeMode": "contain",

@@ -7,7 +7,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Bell } from 'lucide-react-native';
 import { chats, Chat, users } from '../data/mockData';
 
 const colors = {
@@ -62,7 +62,7 @@ const ChatsScreen: React.FC<ChatsScreenProps> = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.textDark }]}>Messages</Text>
-        <Ionicons name="notifications-outline" color={"#0A0A0A"} size={24} />
+        <Bell color={"#0A0A0A"} size={24} />
       </View>
       
       {/* Just Matched Section */}

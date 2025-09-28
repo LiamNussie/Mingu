@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
+import { Home, MessageCircle, User } from 'lucide-react-native';
 
 import SimpleHomeScreen from '../screens/SimpleHomeScreen';
 import ChatsScreen from '../screens/ChatsScreen';
@@ -27,19 +27,15 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap;
-
           if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
+            return <Home size={size} color={color} fill={focused ? color : 'transparent'} />;
           } else if (route.name === 'Chats') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+            return <MessageCircle size={size} color={color} fill={focused ? color : 'transparent'} />;
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            return <User size={size} color={color} fill={focused ? color : 'transparent'} />;
           } else {
-            iconName = 'home-outline';
+            return <Home size={size} color={color} fill={focused ? color : 'transparent'} />;
           }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#FF6B6B',
         tabBarInactiveTintColor: '#9CA3AF',

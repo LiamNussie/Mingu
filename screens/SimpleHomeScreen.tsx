@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Heart, X, CheckCircle, Info, Star, Zap, HelpCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { users, User } from '../data/mockData';
 import CustomModal from '../components/CustomModal';
@@ -158,13 +158,13 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipeLeft, onSwipeRight, 
       
       {/* Like Indicator */}
       <Animated.View style={[styles.indicator, styles.likeIndicator, { opacity: likeOpacity }]}>
-        <Ionicons name="heart" size={35} color="#00E676" />
+        <Heart size={35} color="#00E676" fill="#00E676" />
         <Text style={[styles.indicatorText, { color: '#00E676' }]}>LIKE</Text>
       </Animated.View>
 
       {/* Pass Indicator */}
       <Animated.View style={[styles.indicator, styles.passIndicator, { opacity: passOpacity }]}>
-        <Ionicons name="close" size={40} color="#FF1744" />
+        <X size={40} color="#FF1744" />
         <Text style={[styles.indicatorText, { color: '#FF1744' }]}>NOPE</Text>
       </Animated.View>
 
@@ -181,7 +181,7 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipeLeft, onSwipeRight, 
             {user.name} - {user.age}
           </Text>
           <View style={styles.verifiedBadge}>
-            <Ionicons name="checkmark-circle" size={20} color="#4FC3F7" />
+            <CheckCircle size={20} color="#4FC3F7" fill="#4FC3F7" />
           </View>
         </View>
         <Text style={styles.cardBio} numberOfLines={2}>
@@ -191,10 +191,10 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipeLeft, onSwipeRight, 
         {/* Action buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.infoButton}>
-            <Ionicons name="information-circle-outline" size={24} color="#FFF" />
+            <Info size={24} color="#FFF" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.superLikeButton}>
-            <Ionicons name="star" size={24} color="#4FC3F7" />
+            <Star size={24} color="#4FC3F7" fill="#4FC3F7" />
           </TouchableOpacity>
         </View>
       </View>
@@ -279,7 +279,7 @@ const SimpleHomeScreen: React.FC = () => {
         {currentIndex >= users.length ? (
           <View style={styles.noMoreCards}>
             <View style={styles.emptyStateIcon}>
-              <Ionicons name="heart-outline" size={64} color="#FF6B6B" />
+              <Heart size={64} color="#FF6B6B" />
             </View>
             <Text style={styles.noMoreText}>You've seen everyone!</Text>
             <Text style={styles.noMoreSubtext}>Check back later for new people</Text>
@@ -316,7 +316,7 @@ const SimpleHomeScreen: React.FC = () => {
         >
           <View style={styles.promoContent}>
             <View style={styles.promoIcon}>
-              <Ionicons name="flash" size={20} color="#FFF" />
+              <Zap size={20} color="#FFF" fill="#FFF" />
             </View>
             <View style={styles.promoText}>
               <Text style={styles.promoTitle}>Get Mingu Premium</Text>
@@ -336,7 +336,7 @@ const SimpleHomeScreen: React.FC = () => {
           style={[styles.actionButton, styles.passActionButton]}
           onPress={handleSwipeLeft}
         >
-          <Ionicons name="close" size={28} color="#FF4458" />
+          <X size={28} color="#FF4458" />
         </TouchableOpacity>
         </View>
         <View style={{padding: 4, backgroundColor: "#FFF", borderRadius: 50}}>
@@ -344,7 +344,7 @@ const SimpleHomeScreen: React.FC = () => {
           style={[styles.actionButton, styles.superLikeActionButton]}
           onPress={handleSuperLike}
         >
-          <Ionicons name="star" size={24} color="#4FC3F7" />
+          <Star size={24} color="#4FC3F7" fill="#4FC3F7" />
         </TouchableOpacity>
         </View>
         <View style={{padding: 4, backgroundColor: "#FFF", borderRadius: 50}}>
@@ -352,7 +352,7 @@ const SimpleHomeScreen: React.FC = () => {
           style={[styles.actionButton, styles.likeActionButton]}
           onPress={handleSwipeRight}
         >
-          <Ionicons name="heart" size={28} color="#FFFFFF" />
+          <Heart size={28} color="#FFFFFF" fill="#FFFFFF" />
         </TouchableOpacity>
         </View>
       </View>
@@ -365,7 +365,7 @@ const SimpleHomeScreen: React.FC = () => {
       >
         <View style={styles.matchModalContent}>
           <View style={styles.matchHeader}>
-            <Ionicons name="heart" size={60} color="#FF6B6B" />
+            <Heart size={60} color="#FF6B6B" fill="#FF6B6B" />
             <Text style={styles.matchTitle}>It's a Match!</Text>
             <Text style={styles.matchSubtitle}>You and {matchedUser?.name} liked each other</Text>
           </View>
@@ -378,7 +378,7 @@ const SimpleHomeScreen: React.FC = () => {
               />
             </View>
             <View style={styles.heartContainer}>
-              <Ionicons name="heart" size={24} color="#FF6B6B" />
+              <Heart size={24} color="#FF6B6B" fill="#FF6B6B" />
             </View>
             <View style={styles.photoContainer}>
               <Image 
@@ -425,7 +425,7 @@ const SimpleHomeScreen: React.FC = () => {
         )}
         <View style={styles.superLikeModalContent}>
           <View style={styles.superLikeHeader}>
-            <Ionicons name="star" size={80} color="#4FC3F7" />
+            <Star size={80} color="#4FC3F7" fill="#4FC3F7" />
             <Text style={styles.superLikeTitle}>Super Like!</Text>
             <Text style={styles.superLikeSubtitle}>You super liked {superLikedUser?.name}!</Text>
             <Text style={styles.superLikeDescription}>They'll know you're really interested</Text>
@@ -438,7 +438,7 @@ const SimpleHomeScreen: React.FC = () => {
                 style={styles.superLikeUserPhoto}
               />
               <View style={styles.superLikeStarBadge}>
-                <Ionicons name="star" size={16} color="#FFF" />
+                <Star size={16} color="#FFF" fill="#FFF" />
               </View>
             </View>
           </View>

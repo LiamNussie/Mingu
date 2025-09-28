@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Heart, MessageCircle, Eye, Settings, Shield, HelpCircle, Info, LogOut, ChevronRight } from 'lucide-react-native';
 
 const colors = {
   textDark: '#1F2937',
@@ -50,17 +50,17 @@ const ProfileScreen: React.FC = () => {
         
         <View style={styles.mainsSection}>
           <View style={styles.mainSectionItem}>
-            <Ionicons name="heart" size={24} color={colors.primary} style={styles.mainSectionItemIcon} />
+            <Heart size={24} color={colors.primary} style={styles.mainSectionItemIcon} fill={colors.primary} />
             <Text style={styles.mainSectionItemTitle}>12</Text>
             <Text style={styles.mainSectionItemSubtitle}>Matches</Text>
           </View>
           <View style={styles.mainSectionItem}>
-            <Ionicons name="chatbubbles" size={24} color={colors.primary} style={styles.mainSectionItemIcon} />
+            <MessageCircle size={24} color={colors.primary} style={styles.mainSectionItemIcon} fill={colors.primary} />
             <Text style={styles.mainSectionItemTitle}>8</Text>
             <Text style={styles.mainSectionItemSubtitle}>Active Chats</Text>
           </View>
           <View style={styles.mainSectionItem}>
-            <Ionicons name="eye" size={24} color={colors.primary} style={styles.mainSectionItemIcon} />
+            <Eye size={24} color={colors.primary} style={styles.mainSectionItemIcon} />
             <Text style={styles.mainSectionItemTitle}>34</Text>
             <Text style={styles.mainSectionItemSubtitle}>Profile Views</Text>
           </View>
@@ -69,42 +69,42 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.optionsSection}>
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionLeft}>
-              <Ionicons name="settings-outline" size={20} color={colors.textGray} style={styles.optionIcon} />
+              <Settings size={20} color={colors.textGray} style={styles.optionIcon} />
               <Text style={[styles.optionText, { color: colors.textDark }]}>Settings</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+            <ChevronRight size={20} color={colors.mediumGray} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionLeft}>
-              <Ionicons name="shield-checkmark-outline" size={20} color={colors.textGray} style={styles.optionIcon} />
+              <Shield size={20} color={colors.textGray} style={styles.optionIcon} />
               <Text style={[styles.optionText, { color: colors.textDark }]}>Privacy & Safety</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+            <ChevronRight size={20} color={colors.mediumGray} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionLeft}>
-              <Ionicons name="help-circle-outline" size={20} color={colors.textGray} style={styles.optionIcon} />
+              <HelpCircle size={20} color={colors.textGray} style={styles.optionIcon} />
               <Text style={[styles.optionText, { color: colors.textDark }]}>Help & Support</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+            <ChevronRight size={20} color={colors.mediumGray} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionLeft}>
-              <Ionicons name="information-circle-outline" size={20} color={colors.textGray} style={styles.optionIcon} />
+              <Info size={20} color={colors.textGray} style={styles.optionIcon} />
               <Text style={[styles.optionText, { color: colors.textDark }]}>About</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+            <ChevronRight size={20} color={colors.mediumGray} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.optionItem}>
             <View style={styles.optionLeft}>
-              <Ionicons name="log-out-outline" size={20} color={colors.error} style={styles.optionIcon} />
+              <LogOut size={20} color={colors.error} style={styles.optionIcon} />
               <Text style={[styles.optionText, { color: colors.error }]}>Sign Out</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+            <ChevronRight size={20} color={colors.mediumGray} />
           </TouchableOpacity>
         </View>
       </ScrollView>

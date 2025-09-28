@@ -10,7 +10,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ChevronLeft, Lock, Send } from 'lucide-react-native';
 import { Message } from '../data/mockData';
 
 const colors = {
@@ -92,7 +92,7 @@ const ChatScreen = ({ route, navigation }: any) => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={24} color={colors.textDark} />
+              <ChevronLeft size={24} color={colors.textDark} />
             </Pressable>
             <View style={styles.userInfo}>
               <Image
@@ -113,9 +113,9 @@ const ChatScreen = ({ route, navigation }: any) => {
           </View>
           <Pressable>
             <View style={styles.moreButton}>
-              <Ionicons name="ellipse" size={4} color={'#0A0A0A'} />
-              <Ionicons name="ellipse" size={4} color={'#0A0A0A'} />
-              <Ionicons name="ellipse" size={4} color={'#0A0A0A'} />
+              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
+              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
+              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
             </View>
           </Pressable>
         </View>
@@ -130,7 +130,7 @@ const ChatScreen = ({ route, navigation }: any) => {
           }}
         >
           <View style={styles.securityNotice}>
-            <Ionicons name="lock-closed" size={18} style={{marginTop: 3, marginRight: 8}} color={colors.warn} />
+            <Lock size={18} style={{marginTop: 3, marginRight: 8}} color={colors.warn} />
             <Text style={[styles.securityText, { color: colors.darkGray }]}>
               Your messages are private and secure. This app may access conversations only to resolve disputes or ensure platform safety
             </Text>
@@ -199,8 +199,7 @@ const ChatScreen = ({ route, navigation }: any) => {
             </View>
             {message?.length > 0 && (
               <Pressable onPress={sendMessage}>
-                <Ionicons 
-                  name="paper-plane" 
+                <Send 
                   color={colors.textLight} 
                   size={24} 
                   style={styles.sendButton} 
