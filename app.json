@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Mingu",
+    "slug": "Mingu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/Mingu.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/Mingu-white.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B6B",
+      "hideExpoText": true
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Mingu.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/Mingu.png"
+    }
+  }
+}
