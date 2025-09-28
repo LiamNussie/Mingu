@@ -21,10 +21,16 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.blondev.Mingu"
     },
     "web": {
       "favicon": "./assets/Mingu.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "082b79e7-9a6d-45e2-8ef4-00df1362fe83"
+      }
     }
   }
 }

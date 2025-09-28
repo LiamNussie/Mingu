@@ -10,13 +10,13 @@ import {
   Platform,
 } from 'react-native';
 import { ChevronLeft, Lock, Send } from 'lucide-react-native';
-import { Message, NavigationProps } from '../src/types';
+import { Message } from '../src/types';
 import { useChat } from '../src/hooks';
 import { UserAvatar } from '../src/components';
 import { colors, spacing, typography } from '../src/constants';
 import { formatTime } from '../src/utils';
 
-const ChatScreen: React.FC<NavigationProps> = ({ route, navigation }) => {
+const ChatScreen: React.FC<any> = ({ route, navigation }) => {
   const { chatId, userName, messages: initialMessages } = route.params;
   const currentUser = route.params.user || { 
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616c9c0e8e3?w=400&h=400&fit=crop&crop=face', 
