@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -8,78 +8,84 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
 import { ChevronLeft, Lock, Send } from 'lucide-react-native';
-import { Message } from '../data/mockData';
+import { Message, NavigationProps } from '../src/types';
+import { useChat } from '../src/hooks';
+import { UserAvatar } from '../src/components';
+import { colors, spacing, typography } from '../src/constants';
+import { formatTime } from '../src/utils';
 
-const colors = {
-  textDark: '#1F2937',
-  textGray: '#6B7280',
-  textLight: '#FFFFFF',
-  primary: '#FF6B6B',
-  primaryLight: '#FFE5E5',
-  secondary: '#FF6B6B',
-  secondaryLight: '#F3F4F6',
-  secondaryDark: '#374151',
-  lightGray: '#F9FAFB',
-  mediumGray: '#9CA3AF',
-  darkGray: '#374151',
-  error: '#EF4444',
-  warn: '#F59E0B',
-};
-
-const ChatScreen = ({ route, navigation }: any) => {
+const ChatScreen: React.FC<NavigationProps> = ({ route, navigation }) => {
   const { chatId, userName, messages: initialMessages } = route.params;
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
-  const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const scrollViewRef = React.useRef<ScrollView | null>(null);
-
-  const sendMessage = () => {
-    if (message.trim()) {
-      const newMsg: Message = {
-        id: Date.now().toString(),
-        text: message.trim(),
-        senderId: 'user',
-        timestamp: new Date().toISOString(),
-        isRead: true,
-      };
-      
-      setMessages(prev => [...prev, newMsg]);
-      setMessage('');
-      
-      // Show typing indicator
-      setTimeout(() => {
-        setIsTyping(true);
-        
-        // Hide typing indicator and show response
-        setTimeout(() => {
-          setIsTyping(false);
-          const response: Message = {
-            id: (Date.now() + 1).toString(),
-            text: "Thanks for your message! This is a demo response.",
-            senderId: chatId,
-            timestamp: new Date().toISOString(),
-            isRead: true,
-          };
-          setMessages(prev => [...prev, response]);
-        }, 1500 + Math.random() * 1000);
-      }, 500);
-    }
+  const currentUser = route.params.user || { 
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616c9c0e8e3?w=400&h=400&fit=crop&crop=face', 
+    age: 25 
   };
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
+  const { messages, message, isTyping, setMessage, sendMessage } = useChat({
+    initialMessages,
+    chatId,
+  });
+
+  const scrollViewRef = useRef<ScrollView | null>(null);
+
+  const renderSecurityNotice = () => (
+    <View style={styles.securityNotice}>
+      <Lock size={18} style={{ marginTop: 3, marginRight: spacing.sm }} color={colors.warn} />
+      <Text style={[styles.securityText, { color: colors.darkGray }]}>
+        Your messages are private and secure. This app may access conversations only to resolve disputes or ensure platform safety
+      </Text>
+    </View>
+  );
+
+  const renderMessage = (item: Message, index: number) => {
+    const isMyMessage = item.senderId === 'user';
+    return (
+      <View key={index} style={styles.messageItem}>
+        <View style={[
+          styles.messageWrapper,
+          { justifyContent: isMyMessage ? 'flex-end' : 'flex-start' }
+        ]}>
+          <View style={[
+            styles.messageBubble,
+            { 
+              backgroundColor: isMyMessage ? colors.secondary : colors.lightGray,
+              alignSelf: isMyMessage ? 'flex-end' : 'flex-start'
+            }
+          ]}>
+            <Text style={[
+              styles.messageText,
+              { color: isMyMessage ? colors.textLight : colors.darkGray }
+            ]}>
+              {item.text}
+            </Text>
+          </View>
+        </View>
+        <Text style={[
+          styles.messageTime,
+          { 
+            color: colors.mediumGray,
+            textAlign: isMyMessage ? 'right' : 'left'
+          }
+        ]}>
+          {formatTime(item.timestamp)}
+        </Text>
+      </View>
+    );
   };
 
-  // Get user data from chats to show avatar and age
-  const currentUser = route.params.user || { avatar: 'https://images.unsplash.com/photo-1494790108755-2616c9c0e8e3?w=400&h=400&fit=crop&crop=face', age: 25 };
+  const renderTypingIndicator = () => (
+    <View style={styles.messageItem}>
+      <View style={[styles.messageWrapper, { justifyContent: 'flex-start' }]}>
+        <View style={[styles.messageBubble, { backgroundColor: colors.lightGray }]}>
+          <Text style={[styles.messageText, { color: colors.darkGray }]}>
+            Typing...
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
@@ -88,19 +94,13 @@ const ChatScreen = ({ route, navigation }: any) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
               <ChevronLeft size={24} color={colors.textDark} />
             </Pressable>
             <View style={styles.userInfo}>
-              <Image
-                style={[styles.image, { borderRadius: 100 }]}
-                source={{
-                  uri: currentUser.avatar,
-                }}
-              />
+              <UserAvatar uri={currentUser.avatar} size={42} />
               <View>
                 <Text style={[styles.userName, { color: colors.textDark }]}>
                   {userName}
@@ -113,14 +113,13 @@ const ChatScreen = ({ route, navigation }: any) => {
           </View>
           <Pressable>
             <View style={styles.moreButton}>
-              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
-              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
-              <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: '#0A0A0A'}} />
+              <View style={styles.dot} />
+              <View style={styles.dot} />
+              <View style={styles.dot} />
             </View>
           </Pressable>
         </View>
 
-        {/* Messages */}
         <ScrollView 
           ref={scrollViewRef} 
           showsVerticalScrollIndicator={false} 
@@ -129,66 +128,14 @@ const ChatScreen = ({ route, navigation }: any) => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
           }}
         >
-          <View style={styles.securityNotice}>
-            <Lock size={18} style={{marginTop: 3, marginRight: 8}} color={colors.warn} />
-            <Text style={[styles.securityText, { color: colors.darkGray }]}>
-              Your messages are private and secure. This app may access conversations only to resolve disputes or ensure platform safety
-            </Text>
-          </View>
-
-          {messages.map((item, index) => {
-            const isMyMessage = item.senderId === 'user';
-            return (
-              <View key={index} style={styles.messageItem}>
-                <View style={[
-                  styles.messageWrapper,
-                  { justifyContent: isMyMessage ? 'flex-end' : 'flex-start' }
-                ]}>
-                  <View style={[
-                    styles.messageBubble,
-                    { 
-                      backgroundColor: isMyMessage ? colors.secondary : colors.lightGray,
-                      alignSelf: isMyMessage ? 'flex-end' : 'flex-start'
-                    }
-                  ]}>
-                    <Text style={[
-                      styles.messageText,
-                      { color: isMyMessage ? colors.textLight : colors.darkGray }
-                    ]}>
-                      {item.text}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={[
-                  styles.messageTime,
-                  { 
-                    color: colors.mediumGray,
-                    textAlign: isMyMessage ? 'right' : 'left'
-                  }
-                ]}>
-                  {formatTime(item.timestamp)}
-                </Text>
-              </View>
-            );
-          })}
-          
-          {isTyping && (
-            <View style={styles.messageItem}>
-              <View style={[styles.messageWrapper, { justifyContent: 'flex-start' }]}>
-                <View style={[styles.messageBubble, { backgroundColor: colors.lightGray }]}>
-                  <Text style={[styles.messageText, { color: colors.darkGray }]}>
-                    Typing...
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
+          {renderSecurityNotice()}
+          {messages.map(renderMessage)}
+          {isTyping && renderTypingIndicator()}
         </ScrollView>
 
-        {/* Input */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <TextInput
                 placeholder="Send a message"
                 style={styles.textInput}
@@ -219,16 +166,16 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    padding: 20,
+    padding: spacing.md,
     paddingTop: 80,
-    paddingBottom: 30,
-    backgroundColor: '#FFFFFF'
+    paddingBottom: spacing.lg,
+    backgroundColor: colors.textLight,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 15,
+    paddingBottom: spacing.lg,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -236,87 +183,89 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backButton: {
-    marginRight: 10,
+    marginRight: spacing.sm,
   },
   userInfo: {
     flexDirection: 'row',
-    alignItems: 'center'
-  },
-  image: {
-    width: 42,
-    height: 42,
-    marginRight: 12,
+    alignItems: 'center',
+    gap: spacing.md,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   userAge: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.normal,
   },
   moreButton: {
     flexDirection: 'column',
     gap: 2,
-    padding: 8,
+    padding: spacing.sm,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.textDark,
   },
   messagesContainer: {
-    marginVertical: 20,
+    marginVertical: spacing.xs,
     flex: 1,
   },
   securityNotice: {
     backgroundColor: '#FFF8E6',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 20,
+    padding: spacing.md,
+    borderRadius: spacing.sm,
+    marginBottom: spacing.lg,
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   securityText: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.normal,
     flex: 1,
   },
   messageItem: {
-    marginBottom: 15,
+    marginBottom: spacing.md,
   },
   messageWrapper: {
     flexDirection: 'row',
     marginBottom: 5,
   },
   messageBubble: {
-    padding: 10,
+    padding: spacing.sm,
     maxWidth: '55%',
-    borderRadius: 12,
+    borderRadius: spacing.md,
   },
   messageText: {
-    fontSize: 15,
-    fontWeight: '400',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.normal,
   },
   messageTime: {
-    fontSize: 12,
-    fontWeight: '400',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.normal,
   },
   inputContainer: {
-    paddingTop: 10,
+    paddingTop: spacing.sm,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: spacing.sm,
   },
   textInput: {
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    borderRadius: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    fontSize: typography.sizes.md,
+    backgroundColor: colors.textLight,
   },
   sendButton: {
     backgroundColor: colors.primary,
-    padding: 8,
+    padding: spacing.sm,
     borderRadius: 50,
   },
 });

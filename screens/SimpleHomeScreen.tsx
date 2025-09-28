@@ -1,462 +1,221 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
-  Dimensions,
-  PanResponder,
-  Animated,
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
-import { Heart, X, CheckCircle, Info, Star, Zap, HelpCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { users, User } from '../data/mockData';
-import CustomModal from '../components/CustomModal';
+import { Heart, X, Star, Zap } from 'lucide-react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
-const { width: screenWidth } = Dimensions.get('window');
-const SWIPE_THRESHOLD = screenWidth * 0.25;
+import { SwipeCard, ActionButton, Modal } from '../src/components';
+import { useSwipeCards } from '../src/hooks';
+import { users } from '../src/services';
+import { colors, SCREEN_WIDTH, spacing, borderRadius, typography } from '../src/constants';
 
-interface SwipeCardProps {
-  user: User;
-  onSwipeLeft: () => void;
-  onSwipeRight: () => void;
-  index: number;
-}
+const SimpleHomeScreen: React.FC = () => {
+  const {
+    currentIndex,
+    likedUsers,
+    visibleCards,
+    matchedUser,
+    showMatchModal,
+    superLikedUser,
+    showSuperLikeModal,
+    showConfetti,
+    handleSwipeRight,
+    handleSwipeLeft,
+    handleSuperLike,
+    handleReset,
+    setShowMatchModal,
+    setShowSuperLikeModal,
+  } = useSwipeCards({ users });
 
-const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipeLeft, onSwipeRight, index }) => {
-  const pan = useRef(new Animated.ValueXY()).current;
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
+  const renderEmptyState = () => (
+    <View style={styles.noMoreCards}>
+      <View style={styles.emptyStateIcon}>
+        <Heart size={64} color={colors.primary} />
+      </View>
+      <Text style={styles.noMoreText}>You've seen everyone!</Text>
+      <Text style={styles.noMoreSubtext}>Check back later for new people</Text>
+      <Text style={styles.likedCount}>You liked {likedUsers.length} people today</Text>
+      <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+        <Text style={styles.resetButtonText}>Start Over</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
-  // Reset animation values when component mounts
-  React.useEffect(() => {
-    pan.setValue({ x: 0, y: 0 });
-    scale.setValue(1);
-    opacity.setValue(1);
-  }, [user.id]);
-
-  const panResponder = React.useMemo(
-    () => PanResponder.create({
-      onMoveShouldSetPanResponder: () => index === 0,
-      onPanResponderGrant: () => {
-        if (index === 0) {
-          Animated.spring(scale, {
-            toValue: 1.05,
-            useNativeDriver: false,
-          }).start();
-        }
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (index === 0) {
-          pan.setValue({ x: gestureState.dx, y: gestureState.dy * 0.1 });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (index !== 0) return;
+  const renderMatchModal = () => (
+    <Modal visible={showMatchModal} onClose={() => setShowMatchModal(false)} position="center">
+      <View style={styles.matchModalContent}>
+        <View style={styles.matchHeader}>
+          <Heart size={60} color={colors.primary} fill={colors.primary} />
+          <Text style={styles.matchTitle}>It's a Match!</Text>
+          <Text style={styles.matchSubtitle}>You and {matchedUser?.name} liked each other</Text>
+        </View>
         
-        const { dx } = gestureState;
-        
-        if (dx > SWIPE_THRESHOLD) {
-          // Swipe right - like
-          Animated.parallel([
-            Animated.timing(pan, {
-              toValue: { x: screenWidth + 100, y: -100 },
-              duration: 300,
-              useNativeDriver: false,
-            }),
-            Animated.timing(opacity, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: false,
-            }),
-          ]).start(() => {
-            onSwipeRight();
-          });
-        } else if (dx < -SWIPE_THRESHOLD) {
-          // Swipe left - pass
-          Animated.parallel([
-            Animated.timing(pan, {
-              toValue: { x: -screenWidth - 100, y: -100 },
-              duration: 300,
-              useNativeDriver: false,
-            }),
-            Animated.timing(opacity, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: false,
-            }),
-          ]).start(() => {
-            onSwipeLeft();
-          });
-        } else {
-          // Snap back
-          Animated.parallel([
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: false,
-            }),
-            Animated.spring(scale, {
-              toValue: 1,
-              useNativeDriver: false,
-            }),
-          ]).start();
-        }
-      },
-    }), [index, onSwipeLeft, onSwipeRight]);
-
-  const rotateZ = pan.x.interpolate({
-    inputRange: [-screenWidth / 2, 0, screenWidth / 2],
-    outputRange: ['-15deg', '0deg', '15deg'],
-    extrapolate: 'clamp',
-  });
-
-  const likeOpacity = pan.x.interpolate({
-    inputRange: [0, SWIPE_THRESHOLD / 2],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  const passOpacity = pan.x.interpolate({
-    inputRange: [-SWIPE_THRESHOLD / 2, 0],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const cardStyle = {
-    transform: [
-      { translateX: pan.x },
-      { translateY: pan.y },
-      { rotate: rotateZ },
-      { scale: scale },
-    ],
-    opacity: opacity,
-    zIndex: 10 - index,
-  };
-
-  const cardScale = 1 - index * 0.05;
-  const cardOffset = index * 8;
-
-  return (
-    <Animated.View
-      style={[
-        styles.card,
-        cardStyle,
-        {
-          transform: [
-            ...cardStyle.transform,
-            { scale: cardScale },
-            { translateY: Animated.add(pan.y, new Animated.Value(-cardOffset)) },
-          ],
-        },
-      ]}
-      {...panResponder.panHandlers}
-    >
-      <Image source={{ uri: user.avatar }} style={styles.cardImage} />
-      
-      {/* Like Indicator */}
-      <Animated.View style={[styles.indicator, styles.likeIndicator, { opacity: likeOpacity }]}>
-        <Heart size={35} color="#00E676" fill="#00E676" />
-        <Text style={[styles.indicatorText, { color: '#00E676' }]}>LIKE</Text>
-      </Animated.View>
-
-      {/* Pass Indicator */}
-      <Animated.View style={[styles.indicator, styles.passIndicator, { opacity: passOpacity }]}>
-        <X size={40} color="#FF1744" />
-        <Text style={[styles.indicatorText, { color: '#FF1744' }]}>NOPE</Text>
-      </Animated.View>
-
-      {/* Gradient overlay for text readability */}
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
-        style={styles.gradientOverlay}
-      />
-
-      {/* Info section */}
-      <View style={styles.cardInfo}>
-        <View style={styles.nameSection}>
-          <Text style={styles.cardName}>
-            {user.name} - {user.age}
-          </Text>
-          <View style={styles.verifiedBadge}>
-            <CheckCircle size={20} color="#4FC3F7" fill="#4FC3F7" />
+        <View style={styles.matchPhotos}>
+          <View style={styles.photoContainer}>
+            <Image source={{ uri: matchedUser?.avatar }} style={styles.matchPhoto} />
+          </View>
+          <View style={styles.heartContainer}>
+            <Heart size={24} color={colors.primary} fill={colors.primary} />
+          </View>
+          <View style={styles.photoContainer}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face' }} 
+              style={styles.matchPhoto}
+            />
           </View>
         </View>
-        <Text style={styles.cardBio} numberOfLines={2}>
-          {user.bio}
-        </Text>
-        
-        {/* Action buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.infoButton}>
-            <Info size={24} color="#FFF" />
+
+        <View style={styles.matchActions}>
+          <TouchableOpacity 
+            style={styles.sendMessageButton}
+            onPress={() => setShowMatchModal(false)}
+          >
+            <Text style={styles.sendMessageText}>Send Message</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.superLikeButton}>
-            <Star size={24} color="#4FC3F7" fill="#4FC3F7" />
+          <TouchableOpacity 
+            style={styles.keepSwipingButton}
+            onPress={() => setShowMatchModal(false)}
+          >
+            <Text style={styles.keepSwipingText}>Keep Swiping</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </Animated.View>
+    </Modal>
   );
-};
 
-const SimpleHomeScreen: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [likedUsers, setLikedUsers] = useState<User[]>([]);
-  const [showMatchModal, setShowMatchModal] = useState(false);
-  const [matchedUser, setMatchedUser] = useState<User | null>(null);
-  const [showSuperLikeModal, setShowSuperLikeModal] = useState(false);
-  const [superLikedUser, setSuperLikedUser] = useState<User | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const renderSuperLikeModal = () => (
+    <Modal visible={showSuperLikeModal} onClose={() => setShowSuperLikeModal(false)} position="center">
+      {showConfetti && (
+        <View style={styles.modalConfettiContainer}>
+          <ConfettiCannon
+            count={200}
+            origin={{x: SCREEN_WIDTH / 2, y: 0}}
+            fallSpeed={3000}
+            fadeOut={true}
+            colors={['#4FC3F7', '#FF6B6B', '#FFD700', '#FF8E8E', '#87CEEB']}
+          />
+        </View>
+      )}
+      <View style={styles.superLikeModalContent}>
+        <View style={styles.superLikeHeader}>
+          <Star size={80} color="#4FC3F7" fill="#4FC3F7" />
+          <Text style={styles.superLikeTitle}>Super Like!</Text>
+          <Text style={styles.superLikeSubtitle}>You super liked {superLikedUser?.name}!</Text>
+          <Text style={styles.superLikeDescription}>They'll know you're really interested</Text>
+        </View>
+        
+        <View style={styles.superLikePhoto}>
+          <View style={styles.superLikePhotoContainer}>
+            <Image source={{ uri: superLikedUser?.avatar }} style={styles.superLikeUserPhoto} />
+            <View style={styles.superLikeStarBadge}>
+              <Star size={16} color="#FFF" fill="#FFF" />
+            </View>
+          </View>
+        </View>
 
-  const handleSwipeRight = React.useCallback(() => {
-    if (currentIndex < users.length) {
-      const currentUser = users[currentIndex];
-      setLikedUsers(prev => [...prev, currentUser]);
-      
-      // 60% chance of showing match modal
-      const shouldShowMatch = Math.random() < 0.6;
-      if (shouldShowMatch) {
-        setMatchedUser(currentUser);
-        setShowMatchModal(true);
-      }
-    }
-    setCurrentIndex(prev => prev + 1);
-  }, [currentIndex]);
-
-  const handleSwipeLeft = React.useCallback(() => {
-    setCurrentIndex(prev => prev + 1);
-  }, []);
-
-  const handleSuperLike = React.useCallback(() => {
-    if (currentIndex < users.length) {
-      const currentUser = users[currentIndex];
-      setLikedUsers(prev => [...prev, currentUser]);
-      setSuperLikedUser(currentUser);
-      setShowConfetti(true);
-      setShowSuperLikeModal(true);
-      
-      // Hide confetti after animation
-      setTimeout(() => {
-        setShowConfetti(false);
-      }, 3000);
-    }
-    setCurrentIndex(prev => prev + 1);
-  }, [currentIndex]);
-
-  const handleReset = () => {
-    setCurrentIndex(0);
-    setLikedUsers([]);
-  };
-
-  const getVisibleCards = () => {
-    return users.slice(currentIndex, currentIndex + 3);
-  };
-
-  const visibleCards = getVisibleCards();
-  
-  console.log('Render - currentIndex:', currentIndex, 'users.length:', users.length, 'visibleCards:', visibleCards.length);
+        <View style={styles.superLikeActions}>
+          <TouchableOpacity 
+            style={styles.continueSuperLikeButton}
+            onPress={() => setShowSuperLikeModal(false)}
+          >
+            <Text style={styles.continueSuperLikeText}>Continue Swiping</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <>
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <View />
-        <Image 
-          source={require('../assets/Mingu.png')} 
-          style={styles.logoImage}
-          resizeMode="contain"
-        />
-        <View />
-      </View>
-      
-      <View style={styles.cardContainer}>
-        {currentIndex >= users.length ? (
-          <View style={styles.noMoreCards}>
-            <View style={styles.emptyStateIcon}>
-              <Heart size={64} color="#FF6B6B" />
-            </View>
-            <Text style={styles.noMoreText}>You've seen everyone!</Text>
-            <Text style={styles.noMoreSubtext}>Check back later for new people</Text>
-            <Text style={styles.likedCount}>You liked {likedUsers.length} people today</Text>
-            <TouchableOpacity 
-              style={styles.resetButton}
-              onPress={handleReset}
-            >
-              <Text style={styles.resetButtonText}>Start Over</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <>
-            {visibleCards.map((user, index) => (
-              <SwipeCard
-                key={`${user.id}-${currentIndex + index}`}
-                user={user}
-                index={index}
-                onSwipeLeft={index === 0 ? handleSwipeLeft : () => {}}
-                onSwipeRight={index === 0 ? handleSwipeRight : () => {}}
-              />
-            ))}
-          </>
-        )}
-      </View>
-      
-      {/* Promotional Banner */}
-      <View style={styles.promoBanner}>
-        <LinearGradient
-          colors={['#FF6B6B', '#FF8E8E', '#FFB6B6']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
-          style={styles.promoGradient}
-        >
-          <View style={styles.promoContent}>
-            <View style={styles.promoIcon}>
-              <Zap size={20} color="#FFF" fill="#FFF" />
-            </View>
-            <View style={styles.promoText}>
-              <Text style={styles.promoTitle}>Get Mingu Premium</Text>
-              <Text style={styles.promoSubtitle}>Unlimited swipes • See who likes you</Text>
-            </View>
-            <TouchableOpacity style={styles.promoButton}>
-              <Text style={styles.promoButtonText}>Try Free</Text>
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
-      </View>
-      
-      {/* Bottom action bar */}
-      <View style={styles.bottomActionBar}>
-        <View style={{padding: 4, backgroundColor: "#FFF", borderRadius: 50}}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.passActionButton]}
-          onPress={handleSwipeLeft}
-        >
-          <X size={28} color="#FF4458" />
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        
+        <View style={styles.header}>
+          <View />
+          <Image 
+            source={require('../assets/Mingu.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <View />
         </View>
-        <View style={{padding: 4, backgroundColor: "#FFF", borderRadius: 50}}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.superLikeActionButton]}
-          onPress={handleSuperLike}
-        >
-          <Star size={24} color="#4FC3F7" fill="#4FC3F7" />
-        </TouchableOpacity>
+        
+        <View style={styles.cardContainer}>
+          {currentIndex >= users.length ? (
+            renderEmptyState()
+          ) : (
+            <>
+              {visibleCards.map((user, index) => (
+                <SwipeCard
+                  key={`${user.id}-${currentIndex + index}`}
+                  user={user}
+                  index={index}
+                  onSwipeLeft={index === 0 ? handleSwipeLeft : () => {}}
+                  onSwipeRight={index === 0 ? handleSwipeRight : () => {}}
+                />
+              ))}
+            </>
+          )}
         </View>
-        <View style={{padding: 4, backgroundColor: "#FFF", borderRadius: 50}}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.likeActionButton]}
-          onPress={handleSwipeRight}
-        >
-          <Heart size={28} color="#FFFFFF" fill="#FFFFFF" />
-        </TouchableOpacity>
+        
+        <View style={styles.promoBanner}>
+          <LinearGradient
+            colors={[colors.primary, '#FF8E8E', '#FFB6B6']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.promoGradient}
+          >
+            <View style={styles.promoContent}>
+              <View style={styles.promoIcon}>
+                <Zap size={20} color="#FFF" fill="#FFF" />
+              </View>
+              <View style={styles.promoText}>
+                <Text style={styles.promoTitle}>Get Mingu Premium</Text>
+                <Text style={styles.promoSubtitle}>Unlimited swipes • See who likes you</Text>
+              </View>
+              <TouchableOpacity style={styles.promoButton}>
+                <Text style={styles.promoButtonText}>Try Free</Text>
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
         </View>
-      </View>
-
-      {/* Match Modal */}
-      <CustomModal 
-        visible={showMatchModal} 
-        onClose={() => setShowMatchModal(false)}
-        position="center"
-      >
-        <View style={styles.matchModalContent}>
-          <View style={styles.matchHeader}>
-            <Heart size={60} color="#FF6B6B" fill="#FF6B6B" />
-            <Text style={styles.matchTitle}>It's a Match!</Text>
-            <Text style={styles.matchSubtitle}>You and {matchedUser?.name} liked each other</Text>
-          </View>
-          
-          <View style={styles.matchPhotos}>
-            <View style={styles.photoContainer}>
-              <Image 
-                source={{ uri: matchedUser?.avatar }} 
-                style={styles.matchPhoto}
-              />
-            </View>
-            <View style={styles.heartContainer}>
-              <Heart size={24} color="#FF6B6B" fill="#FF6B6B" />
-            </View>
-            <View style={styles.photoContainer}>
-              <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face' }} 
-                style={styles.matchPhoto}
-              />
-            </View>
-          </View>
-
-          <View style={styles.matchActions}>
-            <TouchableOpacity 
-              style={styles.sendMessageButton}
-              onPress={() => setShowMatchModal(false)}
-            >
-              <Text style={styles.sendMessageText}>Send Message</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.keepSwipingButton}
-              onPress={() => setShowMatchModal(false)}
-            >
-              <Text style={styles.keepSwipingText}>Keep Swiping</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </CustomModal>
-
-      {/* Super Like Modal */}
-      <CustomModal 
-        visible={showSuperLikeModal} 
-        onClose={() => setShowSuperLikeModal(false)}
-        position="center"
-      >
-        {/* Confetti inside modal */}
-        {showConfetti && (
-          <View style={styles.modalConfettiContainer}>
-            <ConfettiCannon
-              count={200}
-              origin={{x: screenWidth / 2, y: 0}}
-              fallSpeed={3000}
-              fadeOut={true}
-              colors={['#4FC3F7', '#FF6B6B', '#FFD700', '#FF8E8E', '#87CEEB']}
+        
+        <View style={styles.bottomActionBar}>
+          <View style={styles.actionButtonWrapper}>
+            <ActionButton 
+              onPress={handleSwipeLeft}
+              icon={<X size={28} color="#FF4458" />}
+              variant="danger"
             />
           </View>
-        )}
-        <View style={styles.superLikeModalContent}>
-          <View style={styles.superLikeHeader}>
-            <Star size={80} color="#4FC3F7" fill="#4FC3F7" />
-            <Text style={styles.superLikeTitle}>Super Like!</Text>
-            <Text style={styles.superLikeSubtitle}>You super liked {superLikedUser?.name}!</Text>
-            <Text style={styles.superLikeDescription}>They'll know you're really interested</Text>
+          <View style={styles.actionButtonWrapper}>
+            <ActionButton 
+              onPress={handleSuperLike}
+              icon={<Star size={24} color="#4FC3F7" fill="#4FC3F7" />}
+              variant="secondary"
+              style={styles.superLikeActionButton}
+            />
           </View>
-          
-          <View style={styles.superLikePhoto}>
-            <View style={styles.superLikePhotoContainer}>
-              <Image 
-                source={{ uri: superLikedUser?.avatar }} 
-                style={styles.superLikeUserPhoto}
-              />
-              <View style={styles.superLikeStarBadge}>
-                <Star size={16} color="#FFF" fill="#FFF" />
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.superLikeActions}>
-            <TouchableOpacity 
-              style={styles.continueSuperLikeButton}
-              onPress={() => setShowSuperLikeModal(false)}
-            >
-              <Text style={styles.continueSuperLikeText}>Continue Swiping</Text>
-            </TouchableOpacity>
+          <View style={styles.actionButtonWrapper}>
+            <ActionButton 
+              onPress={handleSwipeRight}
+              icon={<Heart size={28} color="#FFFFFF" fill="#FFFFFF" />}
+              variant="primary"
+            />
           </View>
         </View>
-      </CustomModal>
 
-    </View>
-
-  </>
+        {renderMatchModal()}
+        {renderSuperLikeModal()}
+      </View>
+    </>
   );
 };
 
@@ -469,18 +228,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingTop: 35,
-    paddingBottom: 20,
+    paddingBottom: spacing.lg,
     backgroundColor: 'white',
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   logoImage: {
     height: 64,
@@ -490,153 +241,71 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: 20,
+    paddingTop: spacing.lg,
   },
-  card: {
-    position: 'absolute',
-    width: screenWidth * 0.92,
-    height: screenWidth * 1.4,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-    overflow: 'hidden',
-  },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '40%',
-  },
-  ageBadge: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  ageText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  cardInfo: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-  },
-  nameSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  cardName: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: 'white',
-    marginRight: 8,
-    letterSpacing: -0.5,
-  },
-  verifiedBadge: {
-    marginLeft: 4,
-  },
-  cardBio: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  noMoreCards: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: spacing.xxl,
   },
-  superLikeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(79, 195, 247, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  emptyStateIcon: {
+    marginBottom: spacing.xl,
   },
-  indicator: {
-    position: 'absolute',
-    top: '20%',
-    paddingHorizontal: 25,
-    paddingVertical: 15,
-    borderRadius: 12,
-    borderWidth: 4,
-    zIndex: 10,
-    alignItems: 'center',
-    transform: [{ translateY: -30 }, { rotate: '-20deg' }],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 10,
+  noMoreText: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: '#333',
+    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
-  likeIndicator: {
-    right: 25,
-    borderColor: '#00E676',
-    backgroundColor: 'rgba(0, 230, 118, 0.15)',
-    transform: [{ translateY: -30 }, { rotate: '20deg' }],
+  noMoreSubtext: {
+    fontSize: typography.sizes.md,
+    color: '#666',
+    marginBottom: spacing.xl,
+    textAlign: 'center',
   },
-  passIndicator: {
-    left: 25,
-    borderColor: '#FF1744',
-    backgroundColor: 'rgba(255, 23, 68, 0.15)',
-    transform: [{ translateY: -30 }, { rotate: '-20deg' }],
+  likedCount: {
+    fontSize: typography.sizes.md,
+    color: colors.primary,
+    marginBottom: spacing.xl,
+    textAlign: 'center',
   },
-  indicatorText: {
-    fontSize: 22,
-    fontWeight: '900',
-    marginTop: 3,
-    letterSpacing: 3,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
+  resetButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.xl,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   promoBanner: {
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
-    shadowColor: '#FF6B6B',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
   promoGradient: {
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
   },
   promoContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    gap: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: spacing.md,
   },
   promoIcon: {
     width: 36,
@@ -651,20 +320,20 @@ const styles = StyleSheet.create({
   },
   promoTitle: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.bold,
     marginBottom: 2,
   },
   promoSubtitle: {
     color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.medium,
   },
   promoButton: {
     backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -672,9 +341,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   promoButtonText: {
-    color: '#FF6B6B',
-    fontSize: 14,
-    fontWeight: '700',
+    color: colors.primary,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.bold,
   },
   bottomActionBar: {
     position: 'absolute',
@@ -684,112 +353,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 15,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
     gap: 30,
     zIndex: 1000
   },
-  actionButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  passActionButton: {
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#FF4458',
+  actionButtonWrapper: {
+    padding: 4,
+    backgroundColor: "#FFF",
+    borderRadius: borderRadius.full,
   },
   superLikeActionButton: {
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4FC3F7',
     width: 48,
     height: 48,
     borderRadius: 24,
-  },
-  likeActionButton: {
-    backgroundColor: '#FF6B6B',
-  },
-  noMoreCards: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyStateIcon: {
-    marginBottom: 24,
-  },
-  noMoreText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  noMoreSubtext: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  likedCount: {
-    fontSize: 16,
-    color: '#FF6B6B',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  resetButton: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 25,
-    shadowColor: '#FF6B6B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  resetButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    borderColor: '#4FC3F7'
   },
   matchModalContent: {
     alignItems: 'center',
-    paddingVertical: 30,
+    paddingVertical: spacing.lg,
   },
   matchHeader: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: spacing.lg,
   },
   matchTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#FF6B6B',
-    marginTop: 16,
-    marginBottom: 8,
+    fontSize: spacing.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.primary,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   matchSubtitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.md,
     color: '#666',
     textAlign: 'center',
   },
   matchPhotos: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40,
-    gap: 20,
+    marginBottom: spacing.xxl,
+    gap: spacing.lg,
   },
   photoContainer: {
-    borderRadius: 50,
+    borderRadius: borderRadius.full,
     borderWidth: 4,
-    borderColor: '#FF6B6B',
+    borderColor: colors.primary,
     padding: 4,
   },
   matchPhoto: {
@@ -799,65 +408,65 @@ const styles = StyleSheet.create({
   },
   heartContainer: {
     backgroundColor: '#FFE5E5',
-    borderRadius: 20,
-    padding: 8,
+    borderRadius: borderRadius.lg,
+    padding: spacing.sm,
   },
   matchActions: {
     width: '100%',
-    gap: 12,
+    gap: spacing.md,
   },
   sendMessageButton: {
-    backgroundColor: '#FF6B6B',
-    paddingVertical: 16,
-    borderRadius: 25,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.xl,
     alignItems: 'center',
-    paddingHorizontal: 14
+    paddingHorizontal: spacing.sm
   },
   sendMessageText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   keepSwipingButton: {
     backgroundColor: '#F5F5F5',
-    paddingVertical: 16,
-    borderRadius: 25,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.xl,
     alignItems: 'center',
   },
   keepSwipingText: {
     color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   superLikeModalContent: {
     alignItems: 'center',
-    paddingVertical: 30,
+    paddingVertical: spacing.lg,
   },
   superLikeHeader: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: spacing.lg,
   },
   superLikeTitle: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: spacing.xl,
+    fontWeight: typography.weights.bold,
     color: '#4FC3F7',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   superLikeSubtitle: {
-    fontSize: 18,
+    fontSize: typography.sizes.lg,
     color: '#333',
     textAlign: 'center',
-    marginBottom: 8,
-    fontWeight: '600',
+    marginBottom: spacing.sm,
+    fontWeight: typography.weights.semibold,
   },
   superLikeDescription: {
-    fontSize: 14,
+    fontSize: typography.sizes.sm,
     color: '#666',
     textAlign: 'center',
   },
   superLikePhoto: {
-    marginBottom: 40,
+    marginBottom: spacing.xxl,
   },
   superLikePhotoContainer: {
     position: 'relative',
@@ -869,14 +478,14 @@ const styles = StyleSheet.create({
   superLikeUserPhoto: {
     width: 100,
     height: 100,
-    borderRadius: 50,
+    borderRadius: borderRadius.full,
   },
   superLikeStarBadge: {
     position: 'absolute',
     bottom: -2,
     right: -2,
     backgroundColor: '#4FC3F7',
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     width: 24,
     height: 24,
     alignItems: 'center',
@@ -889,14 +498,14 @@ const styles = StyleSheet.create({
   },
   continueSuperLikeButton: {
     backgroundColor: '#4FC3F7',
-    padding: 16,
-    borderRadius: 25,
+    padding: spacing.md,
+    borderRadius: borderRadius.xl,
     alignItems: 'center',
   },
   continueSuperLikeText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
   },
   modalConfettiContainer: {
     position: 'absolute',

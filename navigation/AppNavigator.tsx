@@ -48,6 +48,7 @@ const TabNavigator = () => {
           height: Platform.OS === 'ios' ? 85 : 65,
           elevation: 0,
           shadowOpacity: 0,
+          paddingHorizontal: 60
         },
         tabBarShowLabel: false
       })}
@@ -67,6 +68,7 @@ const TabNavigator = () => {
               height: Platform.OS === 'ios' ? 85 : 65,
               elevation: 0,
               shadowOpacity: 0,
+              paddingHorizontal: 60
             }
           };
         }}

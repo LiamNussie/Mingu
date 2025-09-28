@@ -1,27 +1,4 @@
-export interface Message {
-  id: string;
-  text: string;
-  senderId: string;
-  timestamp: string;
-  isRead: boolean;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  age: number;
-  avatar: string;
-  bio: string;
-  isMatched: boolean;
-  conversations: Message[];
-}
-
-export interface Chat {
-  id: string;
-  user: User;
-  messages: Message[];
-  lastMessage?: Message;
-}
+import { User, Chat } from '../types';
 
 const datingAppData: User[] = [
   {
@@ -65,6 +42,13 @@ const datingAppData: User[] = [
         text: 'Planning a trip to Iceland for the Northern Lights! Are you into traveling too?',
         timestamp: '2025-09-25T18:10:00Z',
         senderId: 'usr_8k2m9n4p',
+        isRead: true
+      },
+      {
+        id: 'msg_6n7o8p',
+        text: 'Iceland sounds incredible! I\'ve always wanted to see the Northern Lights. When are you planning to go?',
+        timestamp: '2025-09-25T19:30:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
@@ -112,6 +96,13 @@ const datingAppData: User[] = [
         text: 'Start with gentle flows! I actually teach beginner classes on weekends if you\'re interested 🧘‍♀️',
         timestamp: '2025-09-26T12:45:00Z',
         senderId: 'usr_9m2n8p4q',
+        isRead: true
+      },
+      {
+        id: 'msg_0z1a2b',
+        text: 'That would be amazing! What time are your weekend classes?',
+        timestamp: '2025-09-26T13:15:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
@@ -220,6 +211,13 @@ const datingAppData: User[] = [
         text: 'Yes! Good design should be invisible but impactful. Also, did you see the meteor shower last night? 🌠',
         timestamp: '2025-09-26T18:00:00Z',
         senderId: 'usr_6o9p2q5r',
+        isRead: true
+      },
+      {
+        id: 'msg_0d1e2f',
+        text: 'I missed it! Was it amazing? I always forget to check when these events happen',
+        timestamp: '2025-09-26T18:30:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
@@ -249,15 +247,6 @@ const datingAppData: User[] = [
     ]
   },
   {
-    id: 'usr_4s7t0u3v',
-    name: 'Isla Bennett',
-    age: 23,
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&crop=face',
-    bio: 'Dance instructor and choreographer. Teaching contemporary and ballet. Movement is my language and music is my soul. Want to dance through life together? 💃🎭',
-    isMatched: false,
-    conversations: []
-  },
-  {
     id: 'usr_8w1x4y7z',
     name: 'Juniper Cole',
     age: 28,
@@ -284,18 +273,23 @@ const datingAppData: User[] = [
         text: 'Yeah, on my kitchen windowsill. Maybe that\'s the problem?',
         timestamp: '2025-09-27T08:35:00Z',
         senderId: 'user',
+        isRead: true
+      },
+      {
+        id: 'msg_3m4n5o',
+        text: 'Windowsills can be tricky! Does it get direct morning sun? Basil loves light but not harsh afternoon heat',
+        timestamp: '2025-09-27T09:00:00Z',
+        senderId: 'usr_8w1x4y7z',
+        isRead: true
+      },
+      {
+        id: 'msg_4n5o6p',
+        text: 'It gets morning sun but then shade in the afternoon. Maybe I should try again with your tips!',
+        timestamp: '2025-09-27T09:15:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
-  },
-  {
-    id: 'usr_1a4b7c0d',
-    name: 'Kira Matthews',
-    age: 25,
-    avatar: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400&h=400&fit=crop&crop=face',
-    bio: 'Graphic artist and vintage vinyl collector. Creating art that tells stories and spinning records that move souls. Let\'s create our own masterpiece! 🎨🎵',
-    isMatched: false,
-    conversations: []
   },
   {
     id: 'usr_9e2f5g8h',
@@ -343,15 +337,6 @@ const datingAppData: User[] = [
     ]
   },
   {
-    id: 'usr_7i0j3k6l',
-    name: 'Mira Santos',
-    age: 24,
-    avatar: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',
-    bio: 'Astronomy PhD student and science communicator. Researching exoplanets and sharing the wonders of space. Let\'s explore the universe together, one star at a time! 🔭✨',
-    isMatched: false,
-    conversations: []
-  },
-  {
     id: 'usr_5m8n1o4p',
     name: 'Natalie Fox',
     age: 26,
@@ -390,15 +375,6 @@ const datingAppData: User[] = [
     ]
   },
   {
-    id: 'usr_3q6r9s2t',
-    name: 'Olivia Hunt',
-    age: 25,
-    avatar: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=400&h=400&fit=crop&crop=face',
-    bio: 'Veterinarian and animal rescue volunteer. Saving lives, big and small. When I\'m not at the clinic, I\'m fostering puppies or at the beach. Love animals? Let\'s chat! 🐾❤️',
-    isMatched: false,
-    conversations: []
-  },
-  {
     id: 'usr_1u4v7w0x',
     name: 'Penelope Cross',
     age: 23,
@@ -425,18 +401,23 @@ const datingAppData: User[] = [
         text: 'That\'s amazing! I\'ve been trying to shop more sustainably. Any thrifting tips?',
         timestamp: '2025-09-26T14:30:00Z',
         senderId: 'user',
+        isRead: true
+      },
+      {
+        id: 'msg_5w6x7y',
+        text: 'Yes! Go early in the morning for best selection, and always check the fabric quality. Also, don\'t be afraid to alter pieces!',
+        timestamp: '2025-09-26T15:00:00Z',
+        senderId: 'usr_1u4v7w0x',
+        isRead: true
+      },
+      {
+        id: 'msg_6x7y8z',
+        text: 'Great advice! I never thought about altering. Do you do that yourself or take it somewhere?',
+        timestamp: '2025-09-26T15:30:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
-  },
-  {
-    id: 'usr_9y2z5a8b',
-    name: 'Quinn Harper',
-    age: 26,
-    avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400&h=400&fit=crop&crop=face',
-    bio: 'Music therapist and singer-songwriter. Healing hearts through melodies and writing songs that tell stories. Let\'s create a beautiful harmony together! 🎼🎤',
-    isMatched: false,
-    conversations: []
   },
   {
     id: 'usr_7c0d3e6f',
@@ -491,24 +472,6 @@ const datingAppData: User[] = [
     ]
   },
   {
-    id: 'usr_5g8h1i4j',
-    name: 'Stella Knight',
-    age: 25,
-    avatar: 'https://images.unsplash.com/photo-1619946794135-5bc917a27793?w=400&h=400&fit=crop&crop=face',
-    bio: 'Jewelry designer and gemstone enthusiast. Creating unique pieces that tell your story. Passionate about crystals, meditation, and all things sparkly! 💎✨',
-    isMatched: false,
-    conversations: []
-  },
-  {
-    id: 'usr_1o4p7q0r',
-    name: 'Uma Richardson',
-    age: 24,
-    avatar: 'https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?w=400&h=400&fit=crop&crop=face',
-    bio: 'Tattoo artist and digital illustrator. Turning skin into canvas and dreams into art. Love horror movies, comic books, and creating lasting memories! 🎨🖋️',
-    isMatched: false,
-    conversations: []
-  },
-  {
     id: 'usr_9s2t5u8v',
     name: 'Vera Dixon',
     age: 26,
@@ -542,18 +505,16 @@ const datingAppData: User[] = [
         text: 'Haha everyone starts somewhere! The key is consistency and patience. Start with walk-run intervals 🏃‍♀️',
         timestamp: '2025-09-26T09:30:00Z',
         senderId: 'usr_9s2t5u8v',
+        isRead: true
+      },
+      {
+        id: 'msg_7g8h9i',
+        text: 'Walk-run intervals sound doable! How long should I start with?',
+        timestamp: '2025-09-26T10:00:00Z',
+        senderId: 'user',
         isRead: false
       }
     ]
-  },
-  {
-    id: 'usr_7w0x3y6z',
-    name: 'Willa Stone',
-    age: 23,
-    avatar: 'https://images.unsplash.com/photo-1542206395-9feb3edaa68d?w=400&h=400&fit=crop&crop=face',
-    bio: 'Florist and botanical artist. Creating beautiful arrangements and painting nature\'s masterpieces. Surrounded by flowers and living life in full bloom! 🌺🎨',
-    isMatched: false,
-    conversations: []
   },
   {
     id: 'usr_5a8b1c4d',
@@ -595,10 +556,8 @@ const datingAppData: User[] = [
   }
 ];
 
-// Create users array (all users for home screen)
 export const users: User[] = datingAppData;
 
-// Create chats array (only matched users with conversations)
 export const chats: Chat[] = datingAppData
   .filter(user => user.isMatched && user.conversations.length > 0)
   .map(user => ({
