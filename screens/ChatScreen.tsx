@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Lock, Send } from 'lucide-react-native';
 import { Message } from '../src/types';
 import { useChat } from '../src/hooks';
@@ -29,6 +30,7 @@ const ChatScreen: React.FC<any> = ({ route, navigation }) => {
   });
 
   const scrollViewRef = useRef<ScrollView | null>(null);
+  const insets = useSafeAreaInsets();
 
   const renderSecurityNotice = () => (
     <View style={styles.securityNotice}>
@@ -91,7 +93,7 @@ const ChatScreen: React.FC<any> = ({ route, navigation }) => {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 25}
     >
       <View style={styles.container}>
         <View style={styles.header}>
@@ -133,7 +135,7 @@ const ChatScreen: React.FC<any> = ({ route, navigation }) => {
           {isTyping && renderTypingIndicator()}
         </ScrollView>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { paddingBottom: insets.bottom }]}>
           <View style={styles.inputWrapper}>
             <View style={{ flex: 1 }}>
               <TextInput
@@ -162,13 +164,11 @@ const ChatScreen: React.FC<any> = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
-    display: "flex",
+    flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
     padding: spacing.sm,
     paddingTop: 50,
-    paddingBottom: spacing.xs,
     backgroundColor: colors.textLight,
   },
   header: {

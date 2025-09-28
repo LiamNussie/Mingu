@@ -1,8 +1,8 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, MessageCircle, User } from 'lucide-react-native';
 
 import SimpleHomeScreen from '../screens/SimpleHomeScreen';
@@ -23,6 +23,8 @@ const ChatsStack = () => {
 };
 
 const TabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -43,9 +45,9 @@ const TabNavigator = () => {
         tabBarStyle: {
           backgroundColor: 'white',
           borderTopWidth: 0,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 8,
-          height: Platform.OS === 'ios' ? 85 : 45,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : 10),
           elevation: 0,
           shadowOpacity: 0,
         },
@@ -61,12 +63,12 @@ const TabNavigator = () => {
           return {
             tabBarStyle: routeName === 'Chat' ? { display: 'none' } : {
               backgroundColor: 'white',
-          borderTopWidth: 0,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
-          paddingTop: 8,
-          height: Platform.OS === 'ios' ? 85 : 45,
-          elevation: 0,
-          shadowOpacity: 0,
+              borderTopWidth: 0,
+              paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
+              paddingTop: 8,
+              height: 60 + (insets.bottom > 0 ? insets.bottom : 10),
+              elevation: 0,
+              shadowOpacity: 0,
             }
           };
         }}
