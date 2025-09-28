@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.md,
   },
   noMoreCards: {
     alignItems: 'center',
@@ -287,9 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.semibold,
   },
   promoBanner: {
-    marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
-    borderRadius: borderRadius.lg,
     overflow: 'hidden',
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -298,12 +296,11 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   promoGradient: {
-    borderRadius: borderRadius.lg,
   },
   promoContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     gap: spacing.md,
   },

@@ -156,11 +156,11 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ user, onSwipeLeft, onSwipeRight, 
 
       <View style={styles.cardInfo}>
         <View style={styles.nameSection}>
-          <Text style={styles.cardName}>
+          <Text style={styles.cardName} numberOfLines={1}>
             {user.name} - {user.age}
           </Text>
           <View style={styles.verifiedBadge}>
-            <CheckCircle size={20} color="#4FC3F7" fill="#4FC3F7" />
+            <CheckCircle size={20} color="#FFF" fill="#4FC3F7" />
           </View>
         </View>
         <Text style={styles.cardBio} numberOfLines={2}>
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   card: {
     position: 'absolute',
     width: SCREEN_WIDTH * 0.92,
-    height: SCREEN_WIDTH * 1.4,
+    height: SCREEN_WIDTH * 1.26,
     backgroundColor: 'white',
     borderRadius: borderRadius.lg,
     shadowColor: '#000',

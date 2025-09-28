@@ -77,7 +77,7 @@ const ChatsScreen: React.FC<ChatsScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: 50,
     backgroundColor: colors.textLight,
   },
   header: {
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    marginTop: spacing.lg,
+    marginTop: spacing.sm,
     display: 'flex',
     flexDirection: 'column',
     gap: spacing.lg,

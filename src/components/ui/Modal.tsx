@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: colors.textLight,
     padding: spacing.xl,
-    borderRadius: 44,
+    borderBottomLeftRadius: 44,
+    borderBottomRightRadius: 44,
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     position: 'absolute',
-    left: 200,
+    left: 165,
     top: 15,
     display: 'flex',
     flexDirection: 'row',

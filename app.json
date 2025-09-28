@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/Mingu.png",
     "userInterfaceStyle": "light",
+    "jsEngine": "hermes",
     "splash": {
       "image": "./assets/Mingu-white.png",
       "resizeMode": "contain",
@@ -13,7 +14,8 @@
       "hideExpoText": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "hermes"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +24,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.blondev.Mingu"
+      "package": "com.blondev.Mingu",
+      "jsEngine": "hermes",
+      "proguardMap": true,
+      "enableProguardInReleaseBuilds": true,
+      "enableHermes": true,
+      "enableShrinkResourcesInReleaseBuilds": true,
+      "minifyEnabled": true
     },
     "web": {
       "favicon": "./assets/Mingu.png"
@@ -31,6 +39,7 @@
       "eas": {
         "projectId": "082b79e7-9a6d-45e2-8ef4-00df1362fe83"
       }
-    }
+    },
+    "plugins": []
   }
 }

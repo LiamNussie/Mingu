@@ -43,12 +43,11 @@ const TabNavigator = () => {
         tabBarStyle: {
           backgroundColor: 'white',
           borderTopWidth: 0,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
           paddingTop: 8,
-          height: Platform.OS === 'ios' ? 85 : 65,
+          height: Platform.OS === 'ios' ? 85 : 45,
           elevation: 0,
           shadowOpacity: 0,
-          paddingHorizontal: 60
         },
         tabBarShowLabel: false
       })}
@@ -62,13 +61,12 @@ const TabNavigator = () => {
           return {
             tabBarStyle: routeName === 'Chat' ? { display: 'none' } : {
               backgroundColor: 'white',
-              borderTopWidth: 0,
-              paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-              paddingTop: 8,
-              height: Platform.OS === 'ios' ? 85 : 65,
-              elevation: 0,
-              shadowOpacity: 0,
-              paddingHorizontal: 60
+          borderTopWidth: 0,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 85 : 45,
+          elevation: 0,
+          shadowOpacity: 0,
             }
           };
         }}

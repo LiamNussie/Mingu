@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingVertical: 22,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 80,
+    paddingTop: 50,
   },
   headerTitle: {
     fontSize: typography.sizes.xl,
@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: spacing.md,
   },
   userName: {
     fontSize: typography.sizes.lg,
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: typography.sizes.md,
     color: colors.textGray,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
   },
   editButton: {
     paddingVertical: spacing.sm,
@@ -154,8 +153,7 @@ const styles = StyleSheet.create({
     color: colors.secondaryDark,
   },
   optionsSection: {
-    paddingTop: spacing.lg,
-    paddingBottom: 60,
+    paddingBottom: 30,
   },
   optionItem: {
     flexDirection: 'row',

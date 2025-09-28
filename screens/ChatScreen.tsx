@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    padding: spacing.md,
-    paddingTop: 80,
-    paddingBottom: spacing.lg,
+    padding: spacing.sm,
+    paddingTop: 50,
+    paddingBottom: spacing.xs,
     backgroundColor: colors.textLight,
   },
   header: {
